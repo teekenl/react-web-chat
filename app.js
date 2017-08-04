@@ -5,6 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+
+// Require module or libraries to connect mLab
+var mongoose = require('mongoose');
+var morgan = requir
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
