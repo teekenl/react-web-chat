@@ -1,7 +1,7 @@
 'use strict';
 
 /* Services for socket usage in controller.js */
-.
+
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
   return {

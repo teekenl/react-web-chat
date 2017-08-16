@@ -5,7 +5,7 @@ var socket = require('../routes/socket.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+    res.render('index', { title: 'Express' });
 });
 
 router.get('/index',function(req, res, next) {
