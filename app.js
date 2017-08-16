@@ -3,12 +3,23 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
-
 
 // Require module or libraries to connect mLab
 var mongoose = require('mongoose');
-var morgan = requir
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+
+var mongoUri =  'mongodb://kenlau95:noob950314@ds129153.mlab.com:29153/capitaldb';
+mongoose.connect(mongoUri,options,function(err) {
+    if(err) {
+        return console.log("The mLab connection url is wrong or invalid");
+    }
+    return console.log("The mLab connection is established");
+});
+
+var db = mongoose.connection;
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -19,6 +30,11 @@ var io = require('socket.io')(server);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+app.use(function(req, res, next){
+    req.db = db;
+    next();
+});
 
 app.use(function(req, res, next) {
     res.io = io;
@@ -31,6 +47,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({secret:"ui2hf893hf232ofn3023fp",resave:false,saveUninitialised:true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);

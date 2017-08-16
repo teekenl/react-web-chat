@@ -1,35 +1,10 @@
 <html>
 <head>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        $(function(){
-            var socket = io.connect('localhost:3000');
-
-            socket.on('connectToUser', function(data){
-                $("#msgBox").innerText = data.socket_message;
-            });
-
-            $('#send').click(function(){
-                socket.on('sendMessage',{
-                    "user_name" : "User 1",
-                    "user_message" : $("#msg").val()
-                });
-            });
-        });
-
-    </script>
+    <title><%=title%></title>
 </head>
 <body>
-    <!--Message box: To show the sent/received messages-->
-    <div id="msgBox" style="height: 200px; width: 400px; border: 1px solid blue;">
-
-    </div>
-    <label for="msg"></label>
-    <!--Textbox: to enter the message text-->
-    <input type="text" id="msg" style="width:300px" />
-    <!--Send: A button to send the message to others-->
-    <input type="submit" id="send" value="send" />
-
+   <h1>Welcome Kenz_Chat Application.</h1>
+   <h1>Your journey of happiness begins here.</h1>
+   <a href="/login">Login to start</a>
 </body>
 </html>

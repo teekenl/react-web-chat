@@ -1,0 +1,20 @@
+<html>
+<head>
+    <title><%= title %></title>
+    <script src="../public/javascripts/validate.js"></script>
+</head>
+<body>
+
+    <form name="user-sign-in" method="post" action="verifyUser" onsubmit="validateInput()">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" /><br/>
+
+        <label for="password" >Password</label>
+        <input type="password" id="password" name="password" /><br/>
+
+        <a href="/signup">Dont have an account?</a>
+        <input type="submit" value="Login">
+    </form>
+
+</body>
+</html>

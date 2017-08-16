@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title><%=title%></title>
+    <script src="../public/javascripts/validate.js"></script>
+</head>
+<body>
+
+    <form name="user-sign-up" method="post" action="validateUser" onsubmit="validateInput(this)">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" /><br/>
+        <label for="useremail">Email</label>
+        <input type="email" id="useremail" name="useremail"/><br/>
+        <label for="password" >Password</label>
+        <input type="password" id="password" name="password" /><br/>
+        <label for="confirm_password"> Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" /><br/>
+        <a href="/login">Have an account? </a><br/>
+        <input type="submit" value="Sign Up">
+    </form>
+
+</body>
+
+</html>
