@@ -15,8 +15,7 @@ router.get('/chat',function(req, res, next){
     if(!req.session.authenticated) {
         res.redirect('/login');
     } else{
-
-        res.render('chat',{title: 'Chat',name:req.sessions.user});
+        res.render('chat',{title: 'Chat'});
     }
 });
 

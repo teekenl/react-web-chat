@@ -5,18 +5,21 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var RedisStore = require("connect-redis")(session);
+var config = require('./config.js');
 var socket = require('./routes/socket.js');
+
+// Setup redis client
+var redis = require('redis');
+var redisClient = redis.createClient();
+var RedisStore = require('connect-redis')(session);
+var redisStore = new RedisStore({ client: redisClient });
+//var sessionService = require('./shared/session-service');
+//sessionService.initializeRedis(redisClient, redisStore);
 
 // Require module or libraries to connect mLab
 var mongoose = require('mongoose');
 var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
     replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
-
-var sessionMiddleware = session({
-    store: new RedisStore({}), // XXX redis server config
-    secret: "random........."
-});
 
 var mongoUri =  'mongodb://kenlau95:noob950314@ds129153.mlab.com:29153/capitaldb';
 mongoose.connect(mongoUri,options,function(err) {
@@ -34,35 +37,39 @@ var users = require('./routes/users');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-io.use(function(socket, next){
-    sessionMiddleware(socket.request,socket.request.res, next);
-});
 
 app.use(function(req, res, next){
     req.db = db;
     next();
 });
 
-app.use(sessionMiddleware);
-
-// Handle the establishment of socket connection in back-end server
-io.sockets.on('connection',socket);
-
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(session({secret:"ui2hf893hf232ofn3023fp",resave:false,saveUninitialised:true}));
+app.use(cookieParser(config.sessionSecret));
+app.use(session({ store: redisStore, key: config.sessionCookieKey, secret: config.sessionSecret, resave: true, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+io.use(function(socket, next){
+    var parseCookie = cookieParser(config.sessionSecret);
+    var handShake = socket.request;
+
+    parseCookie(handShake, null, function(err, data){
+        //
+    })
+});
 
 app.use('/', index);
 app.use('/users', users);
+
+// Handle the establishment of socket connection in back-end server
+io.sockets.on('connection',socket);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

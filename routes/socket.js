@@ -53,8 +53,8 @@ module.exports = function (socket) {
     var name = userNames.getGuestName();
     // send the new user their name and a list of users
     socket.emit('init', {
-        name: socket.request.session.user,
-        users: socket.request.session.id
+        name: name,
+        users: userNames.get()
     });
 
     // notify other clients that a new user has joined
