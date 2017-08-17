@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+var socket = require('./routes/socket.js');
 
 // Require module or libraries to connect mLab
 var mongoose = require('mongoose');
@@ -36,10 +37,8 @@ app.use(function(req, res, next){
     next();
 });
 
-app.use(function(req, res, next) {
-    res.io = io;
-    next();
-});
+// Handle the establishment of socket connection in back-end server
+io.sockets.on('connection',socket);
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

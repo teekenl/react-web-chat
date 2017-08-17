@@ -70,25 +70,6 @@ module.exports = function (socket) {
         });
     });
 
-    // validate a user's name change, and broadcast it on success
-    socket.on('change:name', function (data, fn) {
-        if (userNames.claim(data.name)) {
-            var oldName = name;
-            userNames.free(oldName);
-
-            name = data.name;
-
-            socket.broadcast.emit('change:name', {
-                oldName: oldName,
-                newName: name
-            });
-
-            fn(true);
-        } else {
-            fn(false);
-        }
-    });
-
     // clean up when a user leaves, and broadcast it to other users
     socket.on('disconnect', function () {
         socket.broadcast.emit('user:left', {

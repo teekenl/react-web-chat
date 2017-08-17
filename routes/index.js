@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var passwordHash = require('../routes/password');
-var socket = require('../routes/socket.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -16,8 +15,8 @@ router.get('/chat',function(req, res, next){
     if(!req.session.authenticated) {
         res.redirect('/login');
     } else{
-        res.io.sockets.on('connection',socket);
-        res.render('chat',{title: 'Chat'});
+
+        res.render('chat',{title: 'Chat',name:req.sessions.user});
     }
 });
 
@@ -28,7 +27,7 @@ router.get('/login',function(req, res, next) {
 router.get('/logout',function(req,res,next) {
     if(req.session.authenticated){
         // Unset session if user has logged out
-        req.session.destroy();
+        req.session = null;
     }
     res.redirect('/');
 });

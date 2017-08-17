@@ -6,7 +6,6 @@
 </head>
 <body >
     <h1>Angular Socket.io IM Demo App</h1>
-
     <div ng-controller="AppCtrl">
         <div class="col">
             <h3>Messages</h3>
@@ -26,21 +25,11 @@
                 <input type="submit" value="Send">
             </form>
         </div>
-        <div class="clr">
-            <h3>Change your name</h3>
-            <p>Your current user name is {{name}}</p>
-            <form ng-submit="changeName()">
-                <input ng-model="newName">
-                <input type="submit" value="Change Name">
-            </form>
-        </div>
     </div>
     <script src="javascripts/lib/angular/angular.js"></script>
     <script src="javascripts/app.js"></script>
     <script src="javascripts/services.js"></script>
     <script src="javascripts/controllers.js"></script>
-    <script src="javascripts/filters.js"></script>
-    <script src="javascripts/directives.js"></script>
     <script>
         app.controller('AppCtrl',AppCtrl);
     </script>

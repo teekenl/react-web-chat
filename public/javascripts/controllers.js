@@ -22,7 +22,7 @@ function AppCtrl($scope, socket) {
 
   socket.on('user:join', function (data) {
     $scope.messages.push({
-      user: 'chatroom',
+      user: 'Room',
       text: 'User ' + data.name + ' has joined.'
     });
     $scope.users.push(data.name);
@@ -31,7 +31,7 @@ function AppCtrl($scope, socket) {
   // add a message to the conversation when a user disconnects or leaves the room
   socket.on('user:left', function (data) {
     $scope.messages.push({
-      user: 'chatroom',
+      user: 'Room',
       text: 'User ' + data.name + ' has left.'
     });
     var i, user;
@@ -44,42 +44,8 @@ function AppCtrl($scope, socket) {
     }
   });
 
-  // Private helpers
-  // ===============
-
-  var changeName = function (oldName, newName) {
-    // rename user in list of users
-    var i;
-    for (i = 0; i < $scope.users.length; i++) {
-      if ($scope.users[i] === oldName) {
-        $scope.users[i] = newName;
-      }
-    }
-
-    $scope.messages.push({
-      user: 'chatroom',
-      text: 'User ' + oldName + ' is now known as ' + newName + '.'
-    });
-  };
-
   // Methods published to the scope
   // ==============================
-
-  $scope.changeName = function () {
-    socket.emit('change:name', {
-      name: $scope.newName
-    }, function (result) {
-      if (!result) {
-        alert('There was an error changing your name');
-      } else {
-        
-        changeName($scope.name, $scope.newName);
-
-        $scope.name = $scope.newName;
-        $scope.newName = '';
-      }
-    });
-  };
 
   $scope.messages = [];
 
