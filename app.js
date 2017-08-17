@@ -5,12 +5,18 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+var RedisStore = require("connect-redis")(session);
 var socket = require('./routes/socket.js');
 
 // Require module or libraries to connect mLab
 var mongoose = require('mongoose');
 var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
     replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+
+var sessionMiddleware = session({
+    store: new RedisStore({}), // XXX redis server config
+    secret: "random........."
+});
 
 var mongoUri =  'mongodb://kenlau95:noob950314@ds129153.mlab.com:29153/capitaldb';
 mongoose.connect(mongoUri,options,function(err) {
@@ -32,10 +38,16 @@ var io = require('socket.io')(server);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+io.use(function(socket, next){
+    sessionMiddleware(socket.request,socket.request.res, next);
+});
+
 app.use(function(req, res, next){
     req.db = db;
     next();
 });
+
+app.use(sessionMiddleware);
 
 // Handle the establishment of socket connection in back-end server
 io.sockets.on('connection',socket);
