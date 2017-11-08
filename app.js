@@ -13,8 +13,8 @@ var redis = require('redis');
 var redisClient = redis.createClient();
 var RedisStore = require('connect-redis')(session);
 var redisStore = new RedisStore({ client: redisClient });
-//var sessionService = require('./shared/session-service');
-//sessionService.initializeRedis(redisClient, redisStore);
+var sessionService = require('./routes/session-service');
+sessionService.initializedRedis(redisClient, redisStore);
 
 // Require module or libraries to connect mLab
 var mongoose = require('mongoose');
@@ -36,7 +36,7 @@ var users = require('./routes/users');
 
 var app = express();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
+var io = require('socket.io').listen(server);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -47,6 +47,15 @@ app.use(function(req, res, next){
     next();
 });
 
+//Enable CORs
+var allowCrossDomain = function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", config.allowedCORSOrigins);
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+};
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -55,15 +64,42 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser(config.sessionSecret));
 app.use(session({ store: redisStore, key: config.sessionCookieKey, secret: config.sessionSecret, resave: true, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(allowCrossDomain());
 
-io.use(function(socket, next){
+// deprecated.
+/*
+io.configure(function(){
     var parseCookie = cookieParser(config.sessionSecret);
-    var handShake = socket.request;
-
-    parseCookie(handShake, null, function(err, data){
-        //
+    io.set('authorization', function(handshake, callback) {
+        parseCookie(handshake,null,function(err,data) {
+            if(err)
+                return callback(err.message,false);
+            if(!session)
+                return callback("Not authorized", false);
+            handshake.session = session;
+            callback(null,true);
+        })
     })
 });
+*/
+
+io.use(function(socket,next){
+    var parseCookie = cookieParser(config.sessionSecret);
+    var handshake = socket.request;
+    parseCookie(handshake,null,function(err,data) {
+        if(err)
+            next(new Error(err.message));
+        if(!session)
+            next(new Error('Not authorized'));
+        handshake.session = session;
+        next();
+    })
+});
+
+io.on('connection', function(socket){
+    // put socket route here.
+});
+
 
 app.use('/', index);
 app.use('/users', users);
