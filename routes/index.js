@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var passwordHash = require('../routes/password');
+var membership = require('./membership');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -19,6 +20,9 @@ router.get('/chat',function(req, res, next){
     }
 });
 
+// verify session
+router.get('/verify-session',membership.verifySession);
+
 router.get('/login',function(req, res, next) {
    res.render('login',{title: 'Login'});
 });
@@ -28,6 +32,7 @@ router.get('/logout',function(req,res,next) {
         // Unset session if user has logged out
         req.session = null;
     }
+    membership.unregister(req.session.username);
     res.redirect('/');
 });
 
@@ -35,7 +40,8 @@ router.get('/signup',function(req, res, next) {
    res.render('signup',{title: 'Sign Up'});
 });
 
-router.post('/verifyUser',function(req, res, next) {
+// Authenticate user with credentials.
+router.post('/authenticate',function(req, res, next) {
    var username = req.body.username;
    var password = req.body.password;
    var db = req.db;
@@ -51,8 +57,8 @@ router.post('/verifyUser',function(req, res, next) {
                if(document) {
                    if(passwordHash.validateHash(document.password,password.toString())){
                        // If the user has provided right information
-                       req.session.user = document.username;
-                       req.session.id = document._id;
+                       req.session.username = document.username;
+                       //req.session.id = document._id;
                        req.session.authenticated = true;
                        res.redirect('/chat');
                    } else{
@@ -67,7 +73,8 @@ router.post('/verifyUser',function(req, res, next) {
        )
 });
 
-router.post('/validateUser',function(req,res,next) {
+// Register a new user
+router.post('/register',function(req,res,next) {
    var username = req.body.username,
        userpassword = req.body.password,
        useremail = req.body.useremail;
@@ -82,8 +89,12 @@ router.post('/validateUser',function(req,res,next) {
    }, function(err, document) {
        if(err) {
            res.send("There is a problem with adding user information. Please try it again.");
+           res.redirect('/login');
        }
-       res.redirect('/login');
+       req.session.username = username;
+       req.session.authenticated = true;
+       membership.register(req,res);
+       res.redirect('/chat');
    })
 });
 
